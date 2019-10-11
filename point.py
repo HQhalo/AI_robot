@@ -15,6 +15,8 @@ class point:
         return [int(self.x*RATIO),int(self.y*RATIO)]
     def __str__(self):
         return "("+str(self.x)+","+str(self.y)+")"
+    def __hash__(self):
+        return hash(self.__str__())
     @staticmethod
     def distance(point1, point2):
         return math.sqrt(math.pow(point1.x - point2.x)+math.pow(point1.y-point2.y))

@@ -44,23 +44,21 @@ class map:
     def BFS(self):
         queue = []
         queue.append([self.Start])
-        visited = []
-        for i in range(self.M):
-            visited.append([ 0 for i in range(self.N)])
-
+        visited = dict()
+    
         while queue:
             path = queue.pop(0)
             node = path[-1]
-            # print(path)
-            visited[int(node.x)][int(node.y)] = 1
-            if node == self.Goal:
-               return path
+            visited[node] = 1           
+            if node == self.Goal:       
+                return path
             a = self.generateChild(node)
-            for i in a:
-                if visited[int(i.x)][int(i.y)] == 0:
+            for i in a: 
+                if (i in visited) == False: # shit! dcm "( )"
                     newPath = path + [i]
-                    visited[int(i.x)][int(i.y)]  = 1
+                    visited[i]  = 1
                     queue.append(newPath)
+                    
 if __name__ == "__main__":
     Map = map(sys.argv[1])
     # Map.printM()

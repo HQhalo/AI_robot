@@ -21,8 +21,9 @@ if __name__ == "__main__":
     pygame.draw.circle(screen,RED,Map.Goal.toList(),10)
 
     path = Map.BFS()
-    for i in range(len(path)-1):
-        pygame.draw.line(screen,GREEN,path[i].toList(),path[i+1].toList(),3)
+    if path:
+        for i in range(len(path)-1):
+            pygame.draw.line(screen,GREEN,path[i].toList(),path[i+1].toList(),3)
     
     while not done:
             for event in pygame.event.get():

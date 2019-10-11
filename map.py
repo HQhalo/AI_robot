@@ -1,5 +1,6 @@
 from polygon import polygon
 from point import point
+from config import *
 import sys
 class map:
 
@@ -27,8 +28,15 @@ class map:
             p = polygon(lines[i+3])
             self.polygons.append(p)
             self.pointsMap = self.pointsMap + p.getPoints()
-        
-
+    def getSize(self):
+        return [self.M*RATIO, self.N*RATIO]
+    def mapPoint(self,p):
+        p[1] = self.getSize()[1]- p[1]
+        return p 
+    def mapListPoint(self,LP):
+        for i in range(len(LP)):
+            LP[i] = self.mapPoint(LP[i])
+        return LP
     def generateChild(self,point1):
         children = []
         for i in self.pointsMap:
@@ -42,15 +50,16 @@ class map:
                     children.append(i)
         return children
     def BFS(self):
+        
         queue = []
         queue.append([self.Start])
         visited = dict()
-    
+        visited[self.Start] = 1
         while queue:
             path = queue.pop(0)
             node = path[-1]
-            visited[node] = 1           
-            if node == self.Goal:       
+                       
+            if node == self.Goal:    
                 return path
             a = self.generateChild(node)
             for i in a: 
@@ -58,16 +67,55 @@ class map:
                     newPath = path + [i]
                     visited[i]  = 1
                     queue.append(newPath)
-                    
-if __name__ == "__main__":
-    Map = map(sys.argv[1])
-    # Map.printM()
-    # p1 = point(float(sys.argv[1]),float(sys.argv[2]))
-    # p2 = point(float(sys.argv[3]),float(sys.argv[4]))
-    # p3 = point(float(sys.argv[5]),float(sys.argv[6]))
-    # p4 = point(float(sys.argv[7]),float(sys.argv[8]))
-    # po = polygon("4,4,6,1,2,2,2,4")
-    # print(po.lineSegmentsIntersect(p1,p2,p3,p4))
-    # print(po.IsIntersection(p1,p2))
-    a =Map.BFS()
-   
+    def DFS(self):
+        stack = []
+        stack.append(self.Start)
+        visited = dict()
+        visited[self.Start] = 1
+        while stack:
+            flag = False
+            node = stack[-1]
+           
+            if node == self.Goal:
+                return stack
+            a = self.generateChild(node)
+            for i in a: 
+                if (i in visited) == False:
+                    stack.append(i)
+                    visited[i] = 1
+                    flag = True
+                    break
+            if flag == False:
+                stack.pop()
+    def UCS(self):
+        pQueue = []
+        pQueueCost = []
+        tracingQueue = []
+        
+        pQueue.append(self.Start)
+        tracingQueue.append([self.Start])
+        pQueueCost.append(0)
+        while pQueue:         
+            m= min(pQueueCost)
+            idx = pQueueCost.index(m)
+            cost = pQueueCost.pop(idx)
+            node = pQueue.pop(idx)
+            path = tracingQueue.pop(idx)
+
+            if node == self.Goal:
+               return [cost,path]
+            a = self.generateChild(node)
+
+            for i in a: 
+                costNew = cost + point.distance(node,i) 
+                newPath = path + [i]
+                if (i in pQueue) and costNew < pQueueCost[pQueue.index(i)]:
+                    idx = pQueue.index(i)
+                    pQueueCost[idx] = costNew
+                    tracingQueue[idx] = newPath
+                else:
+                    pQueue.append(i)
+                    pQueueCost.append(costNew)
+                    tracingQueue.append(newPath)
+    def AStar(self):
+        return 0   

@@ -13,18 +13,19 @@ class polygon:
                 v = point(float(coordinates[i]),float(coordinates[i+1]))
                 self.vertices.append(v)
                 i = i+2
-    def toList(self):
+    def toListPixals(self):
         re = []
         for i in self.vertices:
-            re.append([int(i.x*RATIO),int(i.y*RATIO)])
+            re.append(i.toPixal())
         return re
     def getPoints(self):
         return self.vertices
 
     def IsIntersection(self, point1,point2):
         for i  in range(len(self.vertices)):
-            if self.lineSegmentsIntersect(point1,point2,self.vertices[i-1],self.vertices[i]) == True:
-               return True
+            for j in range(i+1,len(self.vertices)):
+                if self.lineSegmentsIntersect(point1,point2,self.vertices[i],self.vertices[j]) == True:
+                    return True
         return False 
 
     def cross_product(self,p1, p2):

@@ -11,7 +11,7 @@ class point:
         return self.x == other.x and self.y == other.y
     def __ne__(self,other):
         return self.x != other.x or self.y != other.y
-    def toList(self):
+    def toPixal(self):
         return [int(self.x*RATIO),int(self.y*RATIO)]
     def __str__(self):
         return "("+str(self.x)+","+str(self.y)+")"
@@ -19,4 +19,4 @@ class point:
         return hash(self.__str__())
     @staticmethod
     def distance(point1, point2):
-        return math.sqrt(math.pow(point1.x - point2.x)+math.pow(point1.y-point2.y))
+        return math.sqrt(math.pow(point1.x - point2.x,2)+math.pow(point1.y-point2.y,2))

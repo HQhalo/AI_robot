@@ -87,10 +87,11 @@ class map:
                     break
             if flag == False:
                 stack.pop()
-    def UCS(self):
+    def UCS_(self):
         pQueue = []
         pQueueCost = []
         tracingQueue = []
+        visited = dict()
         
         pQueue.append(self.Start)
         tracingQueue.append([self.Start])
@@ -101,6 +102,7 @@ class map:
             cost = pQueueCost.pop(idx)
             node = pQueue.pop(idx)
             path = tracingQueue.pop(idx)
+            visited[node] = False
 
             if node == self.Goal:
                return [cost,path]
@@ -114,8 +116,11 @@ class map:
                     pQueueCost[idx] = costNew
                     tracingQueue[idx] = newPath
                 else:
-                    pQueue.append(i)
-                    pQueueCost.append(costNew)
-                    tracingQueue.append(newPath)
+                    if (i in visited) == False:
+                        pQueue.append(i)
+                        pQueueCost.append(costNew)
+                        tracingQueue.append(newPath)
+    def UCS(self):
+        
     def AStar(self):
         return 0   

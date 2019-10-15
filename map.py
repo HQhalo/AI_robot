@@ -1,5 +1,6 @@
 from polygon import polygon
 from point import point
+from pointInfo import *
 from config import *
 import sys
 class map:
@@ -87,7 +88,7 @@ class map:
                     break
             if flag == False:
                 stack.pop()
-    def UCS_(self):
+    def UCS(self):
         pQueue = []
         pQueueCost = []
         tracingQueue = []
@@ -120,7 +121,69 @@ class map:
                         pQueue.append(i)
                         pQueueCost.append(costNew)
                         tracingQueue.append(newPath)
-    def UCS(self):
-        
     def AStar(self):
-        return 0   
+        OpenList = []
+        CloseList = []
+        pointInfos = dict()
+        OpenList.append(self.Start)
+        pointInfos[self.Start] = pointInfo(self.Start,0,0)
+
+        while OpenList:
+            node = OpenList[0]
+            for i in OpenList:
+                if pointInfos[i].f < pointInfos[node].f:
+                    node = i
+            OpenList.remove(node)
+
+            if node == self.Goal:
+                path =[]
+                while node != self.Start:
+                    path.insert(0,node)
+                    node = pointInfos[node].parent
+                path.insert(0,self.Start)
+                return path
+            
+            CloseList.append(node)
+            
+            a = self.generateChild(node)
+            for i in a:
+                g = pointInfos[node].g+ point.distance(node,i)
+                if (i in OpenList) == True:
+                    if g < pointInfos[i].g:
+                        print("i in openlist")
+                        pointInfos[i].g = g
+                        pointInfos[i].parent = node
+                        pointInfos[i].f = pointInfos[i].h + g
+                elif (i in CloseList) == True:
+                    if g < pointInfos[i].g:
+                        print("i in closelist")
+                        pointInfos[i].g = g
+                        pointInfos[i].parent = node
+                        pointInfos[i].f = pointInfos[i].h + g
+                    
+                        stack = []
+                        stack.append(i)
+                        visited = dict()
+                        visited[i] = 1
+                        while stack:
+                            flag = False
+                            Tk_node = stack[-1]
+
+                            par = pointInfos[Tk_node].parent
+                            pointInfos[Tk_node].g = par.g + point.distance(par,pointInfos[Tk_node])
+
+                            b = self.generateChild(Tk_node)
+                            for i in b:
+                                if (i in CloseList) == True or (i in OpenList) == True:
+                                    if (i in visited) == False:
+                                        stack.append(i)
+                                        visited[i] = 1
+                                        flag = True
+                                    break
+                            if flag == False:
+                                stack.pop()   
+                else:
+                    OpenList.append(i)
+                    pointInfos[i] = pointInfo(node,g,point.distance(i,self.Goal))
+                    
+        

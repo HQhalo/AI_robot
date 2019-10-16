@@ -31,16 +31,16 @@ def main():
                         done = True
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_d:
-                            path = Map.DFS()
+                            _,path = Map.DFS()
                             drawPath(path,screen,Map)
                         if event.key == pygame.K_b:
-                            path = Map.BFS()
+                            _,path = Map.BFS()
                             drawPath(path,screen,Map)
                         if event.key == pygame.K_u:
                             _,path = Map.UCS()
                             drawPath(path,screen,Map)
                         if event.key == pygame.K_a:
-                            path = Map.AStar()
+                            _,path = Map.AStar()
                             drawPath(path,screen,Map)
 
 

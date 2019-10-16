@@ -3,6 +3,7 @@ from point import point
 from pointInfo import *
 from config import *
 import sys
+import copy
 class map:
 
     def __init__(self , input):
@@ -22,6 +23,7 @@ class map:
         self.pointsMap = []
         self.pointsMap.append(self.Start)
         self.pointsMap.append(self.Goal)
+        self.wait_point = []
 
         n = int(lines[2])
         
@@ -29,6 +31,14 @@ class map:
             p = polygon(lines[i+3])
             self.polygons.append(p)
             self.pointsMap = self.pointsMap + p.getPoints()
+        if len(lines) > n-1+3:
+            self.num_wait_point = int(lines[n+3])
+            for i in range(self.num_wait_point):
+                token_split = lines[n+3+i+1].split(',')
+                tmp = point(float(token_split[0]),float(token_split[1]))
+                self.pointsMap.append(tmp)
+                self.wait_point.append(tmp)
+
     def getSize(self):
         return [self.M*RATIO, self.N*RATIO]
     def mapPoint(self,p):
@@ -60,8 +70,11 @@ class map:
             path = queue.pop(0)
             node = path[-1]
                        
-            if node == self.Goal:    
-                return path
+            if node == self.Goal:
+                cost = 0
+                for i in range(len(path)-1):
+                    cost = cost + point.distance(path[i],path[i+1])
+                return cost,path
             a = self.generateChild(node)
             for i in a: 
                 if (i in visited) == False: # shit! dcm "( )"
@@ -78,7 +91,10 @@ class map:
             node = stack[-1]
            
             if node == self.Goal:
-                return stack
+                cost = 0
+                for i in range(len(stack)-1):
+                    cost = cost + point.distance(stack[i],stack[i+1])
+                return cost,stack
             a = self.generateChild(node)
             for i in a: 
                 if (i in visited) == False:
@@ -141,7 +157,10 @@ class map:
                     path.insert(0,node)
                     node = pointInfos[node].parent
                 path.insert(0,self.Start)
-                return path
+                cost = 0
+                for i in range(len(path)-1):
+                    cost = cost + point.distance(path[i],path[i+1])
+                return cost,path
             
             CloseList.append(node)
             
@@ -186,4 +205,39 @@ class map:
                     OpenList.append(i)
                     pointInfos[i] = pointInfo(node,g,point.distance(i,self.Goal))
                     
+    def collect_wait_point(self, search_alo):
         
+        start_point = self.Start
+        visited = [0 for i in range(self.num_wait_point)]
+        total_cost = 0
+        total_path = []
+        for k in range(self.num_wait_point):
+            pos = -1
+            min_dis = 0
+            for i in range(self.num_wait_point):
+                if visited[i] == 0:
+                    if (point.distance(start_point, self.wait_point[i]) < min_dis) or (pos == -1):
+                        min_dis = point.distance(start_point, self.wait_point[i])
+                        pos = i
+            print(pos)
+            visited[pos] = 1
+
+            Map = copy.deepcopy(self)
+            Map.Goal = copy.deepcopy(self.wait_point[pos])
+            Map.Start = copy.deepcopy(start_point)
+            start_point = copy.deepcopy(self.wait_point[pos])
+            cost,path = search_alo(Map)
+            total_cost = total_cost + cost
+            total_path = total_path + path
+            
+        Map = copy.deepcopy(self)
+        Map.Goal = copy.deepcopy(self.Goal)
+        Map.Start = copy.deepcopy(start_point)
+        start_point = copy.deepcopy(self.wait_point[pos])
+
+        cost,path = search_alo(Map)
+        total_cost = total_cost + cost
+        total_path = total_path + path
+    
+
+        return total_cost, total_path

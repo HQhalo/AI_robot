@@ -4,9 +4,13 @@ from pointInfo import *
 from config import *
 import sys
 import copy
+import pygame
+
 class map:
 
-    def __init__(self , input):
+    def __init__(self ,input):
+        
+
         f = open(input,"r")
         lines = f.readlines()
         
@@ -38,9 +42,10 @@ class map:
                 tmp = point(float(token_split[0]),float(token_split[1]))
                 self.pointsMap.append(tmp)
                 self.wait_point.append(tmp)
-
+        self.screen = pygame.display.set_mode(self.getSize())
+        
     def getSize(self):
-        return [self.M*RATIO, self.N*RATIO]
+        return [(self.M+10)*RATIO, (self.N)*RATIO]
     def mapPoint(self,p):
         p[1] = self.getSize()[1]- p[1]
         return p 
@@ -60,6 +65,37 @@ class map:
                 if flag == False:
                     children.append(i)
         return children
+    def draw(self):
+        self.screen.fill(BLACK)
+        pygame.draw.rect(self.screen,WHITE,[0,0,self.M*RATIO, self.N*RATIO],5)
+
+        for i in self.polygons:
+            pygame.draw.polygon(self.screen, RED, self.mapListPoint(i.toListPixals()), 5)
+
+        pygame.draw.circle(self.screen,RED,self.mapPoint(self.Start.toPixal()),10)
+        pygame.draw.circle(self.screen,BLUE,self.mapPoint(self.Goal.toPixal()),10)
+
+        self.drawText("Enter:",point(self.M+1,1),18)
+        self.drawText("b : Run BFS",point(self.M+2,2),16)
+        self.drawText("d : Run DFS",point(self.M+2,3),16)
+        self.drawText("u : Run UCS",point(self.M+2,4),16)
+        self.drawText("a : Run A star",point(self.M+2,5),16)
+        
+        self.drawText("q : quit",point(self.M+2,6),16)
+        
+    def drawText(self,text,coord,size):
+        font = pygame.font.Font('freesansbold.ttf', size) 
+        text = font.render(text, True, GREEN, BLUE) 
+        textRect = text.get_rect()  
+        textRect.midleft = (coord.x*RATIO, coord.y*RATIO) 
+        self.screen.blit(text, textRect)
+
+    def drawPath(self,path):
+        if path:
+            for i in range(len(path)-1):
+                pygame.draw.line(self.screen,GREEN,self.mapPoint(path[i].toPixal()),self.mapPoint(path[i+1].toPixal()),2)
+    def drawCost(self,cost):
+        self.drawText("Cost: "+str(cost),point(self.M+1,self.N-1),16)
     def BFS(self):
         
         queue = []
@@ -168,14 +204,12 @@ class map:
             for i in a:
                 g = pointInfos[node].g+ point.distance(node,i)
                 if (i in OpenList) == True:
-                    if g < pointInfos[i].g:
-                        print("i in openlist")
+                    if g < pointInfos[i].g:                      
                         pointInfos[i].g = g
                         pointInfos[i].parent = node
                         pointInfos[i].f = pointInfos[i].h + g
                 elif (i in CloseList) == True:
-                    if g < pointInfos[i].g:
-                        print("i in closelist")
+                    if g < pointInfos[i].g:                     
                         pointInfos[i].g = g
                         pointInfos[i].parent = node
                         pointInfos[i].f = pointInfos[i].h + g

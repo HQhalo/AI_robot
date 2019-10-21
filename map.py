@@ -323,10 +323,13 @@ class map:
         return 0,None
     def collect_wait_point(self):
         
-        start_point = self.Start
+        start_point = copy.deepcopy(self.Start)
         visited = [0 for i in range(self.num_wait_point)]
         total_cost = 0
         total_path = []
+        Map = copy.deepcopy(self)
+        end_point = copy.deepcopy(self.Goal)
+
         for k in range(self.num_wait_point):
             pos = -1
             min_dis = 0
@@ -337,15 +340,19 @@ class map:
                         pos = i
             #print(pos)
             visited[pos] = 1
-     
-            cost,path = self.collect_wait_pointHelper(start_point,self.wait_point[pos])
+
+
+            Map.Goal = copy.deepcopy(self.wait_point[pos])
+            Map.Start = copy.deepcopy(start_point)
+
             start_point = copy.deepcopy(self.wait_point[pos])
             
             total_cost = total_cost + cost
             total_path = total_path + path
-     
-        cost,path = self.collect_wait_pointHelper(start_point,self.Goal)   
+
         start_point = copy.deepcopy(self.wait_point[pos])
+        Map.Start = copy.deepcopy(start_point)
+        Map.Goal = end_point
 
         total_cost = total_cost + cost
         total_path = total_path + path

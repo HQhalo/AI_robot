@@ -1,5 +1,5 @@
 # AI_robot
-Requite python version 2 or 3.5 and pygame
+Requite python version 2 or 3.5 pygame
 
 Instruction
 

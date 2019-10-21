@@ -35,7 +35,6 @@ class map:
             p = polygon(lines[i+3])
             self.polygons.append(p)
             self.pointsMap = self.pointsMap + p.getPoints()
-        
         if len(lines) > n-1+3:
             self.num_wait_point = int(lines[n+3])
             for i in range(self.num_wait_point):
@@ -54,13 +53,9 @@ class map:
         for i in range(len(LP)):
             LP[i] = self.mapPoint(LP[i])
         return LP
-    def outOfRect(self,p):
-        return p.x<0 or p.x >self.M or p.y < 0 or p.y > self.N
     def generateChild(self,point1):
         children = []
         for i in self.pointsMap:
-            if self.outOfRect(i):
-                continue
             if i != point1:
                 flag = False
                 for j in self.polygons:
@@ -75,7 +70,7 @@ class map:
         pygame.draw.rect(self.screen,WHITE,[0,0,self.M*RATIO, self.N*RATIO],5)
 
         for i in self.polygons:
-            pygame.draw.polygon(self.screen, RED, self.mapListPoint(i.toListPixals()), 4)
+            pygame.draw.polygon(self.screen, RED, self.mapListPoint(i.toListPixals()), 5)
 
         pygame.draw.circle(self.screen,RED,self.mapPoint(self.Start.toPixal()),10)
         pygame.draw.circle(self.screen,BLUE,self.mapPoint(self.Goal.toPixal()),10)
@@ -85,11 +80,9 @@ class map:
         self.drawText("d : Run DFS",point(self.M+2,3),16)
         self.drawText("u : Run UCS",point(self.M+2,4),16)
         self.drawText("a : Run A star",point(self.M+2,5),16)
-        self.drawText("w : Run collect waiting point",point(self.M+2,6),16)
-        self.drawText("q : quit",point(self.M+2,8),16)
-    def drawWaitPoint(self):
-        for i in self.wait_point:
-            pygame.draw.circle(self.screen,(255,153,18),self.mapPoint(i.toPixal()),10) 
+        
+        self.drawText("q : quit",point(self.M+2,6),16)
+        
     def drawText(self,text,coord,size):
         font = pygame.font.Font('freesansbold.ttf', size) 
         text = font.render(text, True, GREEN, BLUE) 
@@ -124,7 +117,6 @@ class map:
                     newPath = path + [i]
                     visited[i]  = 1
                     queue.append(newPath)
-        return 0,None
     def DFS(self):
         stack = []
         stack.append(self.Start)
@@ -145,11 +137,9 @@ class map:
                     stack.append(i)
                     visited[i] = 1
                     flag = True
-                    break                  
+                    break
             if flag == False:
                 stack.pop()
-        return 0,None
-        
     def UCS(self):
         pQueue = []
         pQueueCost = []
@@ -183,8 +173,6 @@ class map:
                         pQueue.append(i)
                         pQueueCost.append(costNew)
                         tracingQueue.append(newPath)
-        return 0,None
-        
     def AStar(self):
         OpenList = []
         CloseList = []
@@ -244,81 +232,14 @@ class map:
                                         stack.append(i)
                                         visited[i] = 1
                                         flag = True
-                                        break
+                                    break
                             if flag == False:
                                 stack.pop()   
                 else:
                     OpenList.append(i)
                     pointInfos[i] = pointInfo(node,g,point.distance(i,self.Goal))
-        return 0,None
-
-    def collect_wait_pointHelper(self,start,goal):
-        OpenList = []
-        CloseList = []
-        pointInfos = dict()
-        OpenList.append(start)
-        pointInfos[start] = pointInfo(start,0,0)
-
-        while OpenList:
-            node = OpenList[0]
-            for i in OpenList:
-                if pointInfos[i].f < pointInfos[node].f:
-                    node = i
-            OpenList.remove(node)
-
-            if node == goal:
-                path =[]
-                while node != start:
-                    path.insert(0,node)
-                    node = pointInfos[node].parent
-                path.insert(0,start)
-                cost = 0
-                for i in range(len(path)-1):
-                    cost = cost + point.distance(path[i],path[i+1])
-                return cost,path
-            
-            CloseList.append(node)
-            
-            a = self.generateChild(node)
-            for i in a:
-                g = pointInfos[node].g+ point.distance(node,i)
-                if (i in OpenList) == True:
-                    if g < pointInfos[i].g:                      
-                        pointInfos[i].g = g
-                        pointInfos[i].parent = node
-                        pointInfos[i].f = pointInfos[i].h + g
-                elif (i in CloseList) == True:
-                    if g < pointInfos[i].g:                     
-                        pointInfos[i].g = g
-                        pointInfos[i].parent = node
-                        pointInfos[i].f = pointInfos[i].h + g
                     
-                        stack = []
-                        stack.append(i)
-                        visited = dict()
-                        visited[i] = 1
-                        while stack:
-                            flag = False
-                            Tk_node = stack[-1]
-
-                            par = pointInfos[Tk_node].parent
-                            pointInfos[Tk_node].g = par.g + point.distance(par,pointInfos[Tk_node])
-
-                            b = self.generateChild(Tk_node)
-                            for i in b:
-                                if (i in CloseList) == True or (i in OpenList) == True:
-                                    if (i in visited) == False:
-                                        stack.append(i)
-                                        visited[i] = 1
-                                        flag = True
-                           
-                            if flag == False:
-                                stack.pop()   
-                else:
-                    OpenList.append(i)
-                    pointInfos[i] = pointInfo(node,g,point.distance(i,goal))
-        return 0,None
-    def collect_wait_point(self):
+    def collect_wait_point(self, search_alo):
         
         start_point = self.Start
         visited = [0 for i in range(self.num_wait_point)]
@@ -334,16 +255,21 @@ class map:
                         pos = i
             print(pos)
             visited[pos] = 1
-     
-            cost,path = self.collect_wait_pointHelper(start_point,self.wait_point[pos])
+
+            Map = copy.deepcopy(self)
+            Map.Goal = copy.deepcopy(self.wait_point[pos])
+            Map.Start = copy.deepcopy(start_point)
             start_point = copy.deepcopy(self.wait_point[pos])
-            
+            cost,path = search_alo(Map)
             total_cost = total_cost + cost
             total_path = total_path + path
-     
-        cost,path = self.collect_wait_pointHelper(start_point,self.Goal)   
+            
+        Map = copy.deepcopy(self)
+        Map.Goal = copy.deepcopy(self.Goal)
+        Map.Start = copy.deepcopy(start_point)
         start_point = copy.deepcopy(self.wait_point[pos])
 
+        cost,path = search_alo(Map)
         total_cost = total_cost + cost
         total_path = total_path + path
     

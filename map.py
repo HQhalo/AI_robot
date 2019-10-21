@@ -249,6 +249,9 @@ class map:
         visited = [0 for i in range(self.num_wait_point)]
         total_cost = 0
         total_path = []
+
+        Map = copy.deepcopy(self)
+
         for k in range(self.num_wait_point):
             pos = -1
             min_dis = 0
@@ -257,23 +260,23 @@ class map:
                     if (point.distance(start_point, self.wait_point[i]) < min_dis) or (pos == -1):
                         min_dis = point.distance(start_point, self.wait_point[i])
                         pos = i
-            print(pos)
+            
             visited[pos] = 1
 
-            Map = copy.deepcopy(self)
+            
             Map.Goal = copy.deepcopy(self.wait_point[pos])
             Map.Start = copy.deepcopy(start_point)
+
             start_point = copy.deepcopy(self.wait_point[pos])
             cost,path = search_alo(Map)
             total_cost = total_cost + cost
             total_path = total_path + path
             
-        Map = copy.deepcopy(self)
         Map.Goal = copy.deepcopy(self.Goal)
         Map.Start = copy.deepcopy(start_point)
-        start_point = copy.deepcopy(self.wait_point[pos])
-
+    
         cost,path = search_alo(Map)
+        
         total_cost = total_cost + cost
         total_path = total_path + path
     

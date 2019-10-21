@@ -35,7 +35,8 @@ class map:
             p = polygon(lines[i+3])
             self.polygons.append(p)
             self.pointsMap = self.pointsMap + p.getPoints()
-        if len(lines) > n+3:
+        
+        if len(lines) > n-1+3:
             self.num_wait_point = int(lines[n+3])
             for i in range(self.num_wait_point):
                 token_split = lines[n+3+i+1].split(',')
@@ -78,10 +79,6 @@ class map:
 
         pygame.draw.circle(self.screen,RED,self.mapPoint(self.Start.toPixal()),10)
         pygame.draw.circle(self.screen,BLUE,self.mapPoint(self.Goal.toPixal()),10)
-
-        for i in self.wait_point:
-            pygame.draw.circle(self.screen,(255,153,18),self.mapPoint(i.toPixal()),10)
-
 
         self.drawText("Enter:",point(self.M+1,1),18)
         self.drawText("b : Run BFS",point(self.M+2,2),16)
@@ -335,7 +332,7 @@ class map:
                     if (point.distance(start_point, self.wait_point[i]) < min_dis) or (pos == -1):
                         min_dis = point.distance(start_point, self.wait_point[i])
                         pos = i
-            #print(pos)
+            print(pos)
             visited[pos] = 1
      
             cost,path = self.collect_wait_pointHelper(start_point,self.wait_point[pos])

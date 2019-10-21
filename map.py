@@ -35,12 +35,13 @@ class map:
             p = polygon(lines[i+3])
             self.polygons.append(p)
             self.pointsMap = self.pointsMap + p.getPoints()
-        if len(lines) > n+3:
+        
+        if len(lines) > n-1+3:
             self.num_wait_point = int(lines[n+3])
             for i in range(self.num_wait_point):
                 token_split = lines[n+3+i+1].split(',')
                 tmp = point(float(token_split[0]),float(token_split[1]))
-                self.pointsMap.append(tmp)
+                # self.pointsMap.append(tmp)
                 self.wait_point.append(tmp)
         self.screen = pygame.display.set_mode(self.getSize())
         
@@ -69,6 +70,21 @@ class map:
                 if flag == False:
                     children.append(i)
         return children
+    def generateChildWait(self,point1):
+        children = []
+        points = self.pointsMap + self.wait_point
+        for i in points:
+            if self.outOfRect(i):
+                continue
+            if i != point1:
+                flag = False
+                for j in self.polygons:
+                    if j.IsIntersection(point1,i) == True:
+                        flag = True
+                        break
+                if flag == False:
+                    children.append(i)
+        return children
     def draw(self):
         self.screen.fill(BLACK)
         pygame.draw.rect(self.screen,WHITE,[0,0,self.M*RATIO, self.N*RATIO],5)
@@ -79,10 +95,13 @@ class map:
         pygame.draw.circle(self.screen,RED,self.mapPoint(self.Start.toPixal()),10)
         pygame.draw.circle(self.screen,BLUE,self.mapPoint(self.Goal.toPixal()),10)
 
-        for i in self.wait_point:
-            pygame.draw.circle(self.screen,(255,153,18),self.mapPoint(i.toPixal()),10)
+<<<<<<< HEAD
+        # for i in self.wait_point:
+        #     pygame.draw.circle(self.screen,(255,153,18),self.mapPoint(i.toPixal()),10)
 
 
+=======
+>>>>>>> parent of 31b3026... Merge branch 'master' of https://github.com/HQhalo/AI_robot
         self.drawText("Enter:",point(self.M+1,1),18)
         self.drawText("b : Run BFS",point(self.M+2,2),16)
         self.drawText("d : Run DFS",point(self.M+2,3),16)
@@ -104,6 +123,10 @@ class map:
         if path:
             for i in range(len(path)-1):
                 pygame.draw.line(self.screen,GREEN,self.mapPoint(path[i].toPixal()),self.mapPoint(path[i+1].toPixal()),2)
+    def drawPathVisited(self,path):
+        if path:
+            for i in range(len(path)-1):
+                pygame.draw.line(self.screen,V,self.mapPoint(path[i].toPixal()),self.mapPoint(path[i+1].toPixal()),2)
     def drawCost(self,cost):
         self.drawText("Cost: "+str(cost),point(self.M+1,self.N-1),16)
     def BFS(self):
@@ -123,12 +146,13 @@ class map:
                 return cost,path
             a = self.generateChild(node)
             for i in a: 
-                if (i in visited) == False: # shit! dcm "( )"
+                if (i in visited) == False:
+                    self.drawPathVisited([node,i]) 
                     newPath = path + [i]
                     visited[i]  = 1
                     queue.append(newPath)
         return 0,None
-    def DFS(self):
+    def DFS(self):       
         stack = []
         stack.append(self.Start)
         visited = dict()
@@ -145,6 +169,7 @@ class map:
             a = self.generateChild(node)
             for i in a: 
                 if (i in visited) == False:
+                    self.drawPathVisited([node,i]) 
                     stack.append(i)
                     visited[i] = 1
                     flag = True
@@ -177,6 +202,7 @@ class map:
             for i in a: 
                 costNew = cost + point.distance(node,i) 
                 newPath = path + [i]
+                self.drawPathVisited([node,i])
                 if (i in pQueue) and costNew < pQueueCost[pQueue.index(i)]:
                     idx = pQueue.index(i)
                     pQueueCost[idx] = costNew
@@ -218,6 +244,7 @@ class map:
             a = self.generateChild(node)
             for i in a:
                 g = pointInfos[node].g+ point.distance(node,i)
+                self.drawPathVisited([node,i])
                 if (i in OpenList) == True:
                     if g < pointInfos[i].g:                      
                         pointInfos[i].g = g
@@ -282,7 +309,7 @@ class map:
             
             CloseList.append(node)
             
-            a = self.generateChild(node)
+            a = self.generateChildWait(node)
             for i in a:
                 g = pointInfos[node].g+ point.distance(node,i)
                 if (i in OpenList) == True:
@@ -314,13 +341,13 @@ class map:
                                         stack.append(i)
                                         visited[i] = 1
                                         flag = True
-                           
+                                        break
                             if flag == False:
                                 stack.pop()   
                 else:
                     OpenList.append(i)
                     pointInfos[i] = pointInfo(node,g,point.distance(i,goal))
-        return 0,None
+        return 0,[]
     def collect_wait_point(self):
         
         start_point = self.Start
@@ -335,17 +362,17 @@ class map:
                     if (point.distance(start_point, self.wait_point[i]) < min_dis) or (pos == -1):
                         min_dis = point.distance(start_point, self.wait_point[i])
                         pos = i
-            #print(pos)
+            print(pos)
             visited[pos] = 1
      
             cost,path = self.collect_wait_pointHelper(start_point,self.wait_point[pos])
-            start_point = copy.deepcopy(self.wait_point[pos])
+            start_point = self.wait_point[pos]
             
             total_cost = total_cost + cost
             total_path = total_path + path
      
         cost,path = self.collect_wait_pointHelper(start_point,self.Goal)   
-        start_point = copy.deepcopy(self.wait_point[pos])
+        start_point = self.wait_point[pos]
 
         total_cost = total_cost + cost
         total_path = total_path + path

@@ -11,15 +11,9 @@ if __name__ == "__main__":
     screen = pygame.display.set_mode(Map.getSize())
     
     done = False
-    pygame.draw.rect(screen,WHITE,[0,0,Map.M*RATIO, Map.N*RATIO],5)
+    
 
-    for i in Map.polygons:
-        pygame.draw.polygon(screen, RED, Map.mapListPoint(i.toListPixals()), 5)
-
-    pygame.draw.circle(screen,RED,Map.mapPoint(Map.Start.toPixal()),10)
-    pygame.draw.circle(screen,BLUE,Map.mapPoint(Map.Goal.toPixal()),10)
-    for i in Map.wait_point:
-        pygame.draw.circle(screen,(255,153,18),Map.mapPoint(i.toPixal()),10)
+    Map.draw()
 
     while not done:
         for event in pygame.event.get():
@@ -27,6 +21,7 @@ if __name__ == "__main__":
                     done = True
                 search_kind = None
                 if event.type == pygame.KEYDOWN:
+                    Map.draw()
                     if event.key == pygame.K_d:
                         search_kind =  map.DFS
                         
@@ -38,21 +33,18 @@ if __name__ == "__main__":
                         
                     if event.key == pygame.K_a:
                         search_kind =  map.AStar
+                    
+                    if event.key == pygame.K_q:
+                            done = True
+                            break
                         
-                    cost,path = Map.collect_wait_point(search_kind)
-                    # path = Map.BFS()
-                    if path:
-                        for i in range(len(path)-1):
-                            pygame.draw.line(screen,GREEN,Map.mapPoint(path[i].toPixal()),Map.mapPoint(path[i+1].toPixal()),2)
+                    if search_kind != None:
+                        cost,path = Map.collect_wait_point(search_kind)
+                        # path = Map.BFS()
+                        Map.drawCost(cost)
+                        Map.drawPath(path)
+
         pygame.display.flip()
         clock.tick(30)
-                
-        
-    
-    while not done:
-            for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                            done = True           
-            pygame.display.flip()
-            clock.tick(30)
+            
     

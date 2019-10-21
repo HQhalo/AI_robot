@@ -21,12 +21,18 @@ if __name__ == "__main__":
     for i in Map.wait_point:
         pygame.draw.circle(screen,(255,153,18),Map.mapPoint(i.toPixal()),10)
 
+    Map.draw()
+
     while not done:
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     done = True
+
                 search_kind = None
                 if event.type == pygame.KEYDOWN:
+
+                    Map.draw()
+
                     if event.key == pygame.K_d:
                         search_kind =  map.DFS
                         
@@ -38,21 +44,18 @@ if __name__ == "__main__":
                         
                     if event.key == pygame.K_a:
                         search_kind =  map.AStar
+                    
+                    if event.key == pygame.K_q:
+                        done = True
+                        break
+
+                    if search_kind != None:
                         
-                    cost,path = Map.collect_wait_point(search_kind)
-                    # path = Map.BFS()
-                    if path:
-                        for i in range(len(path)-1):
-                            pygame.draw.line(screen,GREEN,Map.mapPoint(path[i].toPixal()),Map.mapPoint(path[i+1].toPixal()),2)
+                        cost,path = Map.collect_wait_point(search_kind)
+                        Map.drawCost(cost)
+                        Map.drawPath(path)
+                        
         pygame.display.flip()
         clock.tick(30)
-                
-        
-    
-    while not done:
-            for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                            done = True           
-            pygame.display.flip()
-            clock.tick(30)
+            
     

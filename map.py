@@ -75,6 +75,10 @@ class map:
         pygame.draw.circle(self.screen,RED,self.mapPoint(self.Start.toPixal()),10)
         pygame.draw.circle(self.screen,BLUE,self.mapPoint(self.Goal.toPixal()),10)
 
+        for i in self.wait_point:
+            pygame.draw.circle(self.screen,(255,153,18),self.mapPoint(i.toPixal()),10)
+
+
         self.drawText("Enter:",point(self.M+1,1),18)
         self.drawText("b : Run BFS",point(self.M+2,2),16)
         self.drawText("d : Run DFS",point(self.M+2,3),16)

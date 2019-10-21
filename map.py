@@ -35,7 +35,7 @@ class map:
             p = polygon(lines[i+3])
             self.polygons.append(p)
             self.pointsMap = self.pointsMap + p.getPoints()
-        if len(lines) > n-1+3:
+        if len(lines) > n+3:
             self.num_wait_point = int(lines[n+3])
             for i in range(self.num_wait_point):
                 token_split = lines[n+3+i+1].split(',')
